@@ -90,6 +90,7 @@ class UserController extends Controller
         if ($user) {
             $user->roles()->detach();
             $user->tags()->detach();
+            $user->orders()->delete();
 
             $user->delete();
         }
