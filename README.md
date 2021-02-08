@@ -18,4 +18,4 @@ This project was made for a minecraft startup and also built to improve my skill
 
 - **[Click Me](https://youtu.be/0XveO2cDM1w)**
 
-- **isStillHosted ? [Link](https://youtu.be/0XveO2cDM1w) : 'is not live anymore'
+- isStillHosted ? [Link](https://youtu.be/0XveO2cDM1w) : 'is not live anymore'
