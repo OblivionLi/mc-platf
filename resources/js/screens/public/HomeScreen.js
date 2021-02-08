@@ -159,8 +159,8 @@ const HomeScreen = ({ match }) => {
                                                                     src={
                                                                         mode.image !=
                                                                         'no-image'
-                                                                            ? `http://www.mcfree.ro/storage/${mode.image}`
-                                                                            : 'http://www.mcfree.ro/images/minecraft-alt.jpg'
+                                                                            ? `http://127.0.0.1:8000/storage/${mode.image}`
+                                                                            : 'http://127.0.0.1:8000/images/minecraft-alt.jpg'
                                                                     }
                                                                     alt={
                                                                         mode.title
@@ -212,7 +212,7 @@ const HomeScreen = ({ match }) => {
                                                     <CardActionArea>
                                                         <CardMedia>
                                                             <img
-                                                                src={`http://www.mcfree.ro/images/unknown.webp`}
+                                                                src={`http://127.0.0.1:8000/images/unknown.webp`}
                                                                 className='header__content--cards-item_imgun'
                                                             />
                                                         </CardMedia>

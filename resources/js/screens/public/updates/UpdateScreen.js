@@ -156,8 +156,8 @@ const UpdateScreen = ({ match }) => {
                                                                 src={
                                                                     upd.image !=
                                                                     "no-image"
-                                                                        ? `http://www.mcfree.ro/storage/${upd.image}`
-                                                                        : `http://www.mcfree.ro/images/unknown.webp`
+                                                                        ? `http://127.0.0.1:8000/storage/${upd.image}`
+                                                                        : `http://127.0.0.1:8000/images/unknown.webp`
                                                                 }
                                                                 alt={upd.name}
                                                                 className="header__content--cards-item_img"
