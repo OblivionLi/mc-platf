@@ -1,0 +1,30 @@
+.auth {
+    
+    padding: 0 5.5rem;
+
+    // &__header {
+    //     display: flex;
+    //     justify-content: space-between;
+    //     margin-bottom: 3.5rem;
+    // }
+
+    &__content {
+        padding: 5.5rem;
+        background-color: $color-cloud;
+
+        &--grid {
+            margin-top: 1.5rem;
+        }
+    }
+
+    // &__header,
+    // &__content {
+    //     padding: 0 5.5rem;
+    //     width: 70%;
+    //     margin: 0 auto;
+    // }
+}
+
+.MuiFormControlLabel-label {
+    color: $color-purple-tinged-grey;
+}

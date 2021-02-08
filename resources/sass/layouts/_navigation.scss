@@ -1,0 +1,63 @@
+.navigation__nav {
+        padding: 1.2rem 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(14.5rem, 1fr));
+        justify-items: center;
+        align-items: center;
+        margin-top: 5.5rem;
+
+        @media only screen and (max-width: 768px) {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+
+            &--brand {
+                display: none;
+            }
+        }
+
+        &--links {
+            list-style-type: none;
+
+            display: flex;
+            margin: auto 0;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        &--link:link,
+        &--link:visited {
+            // font-size: 1.4rem;
+            color: $color-cloud;
+            text-decoration: none;
+            font-family: $font-display;
+            text-transform: uppercase;
+            text-align: center;
+            padding: 1.5rem;
+            display: block;
+            transition-duration: .2s;
+        }
+
+        &--link:hover,
+        &--link:active {
+            background-color: rgba(40, 55, 71, 0.05);
+            transform: translateY(-3px) translateX(-3px);
+        }
+
+        &--brand {
+            height: 4rem;
+            width: 4rem;
+
+            @media only screen and (max-width: 768px) {
+                display: none;
+            }
+        }
+    }
+.cart-btn {
+    padding: -5px;
+}
+
+.MuiBadge-badge {
+    color: $color-cloud;
+    background-color: $color-deep-red;
+}

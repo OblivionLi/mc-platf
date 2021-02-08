@@ -1,8 +1,21 @@
+// Bootstrap
+@import '~bootstrap/scss/bootstrap';
+
 // Fonts
 @import url('https://fonts.googleapis.com/css?family=Nunito');
 
 // Variables
 @import 'variables';
 
-// Bootstrap
-@import '~bootstrap/scss/bootstrap';
+@import 'layouts/base';
+@import 'layouts/navigation';
+@import 'layouts/header';
+@import 'layouts/update';
+@import 'layouts/auth';
+@import 'layouts/shop';
+@import 'layouts/member';
+@import 'layouts/showcase';
+@import 'layouts/reports';
+@import 'layouts/profile';
+
+@import 'layouts/cms/admin';

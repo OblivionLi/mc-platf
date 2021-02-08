@@ -1,0 +1,80 @@
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: inherit;
+}
+
+html {
+    box-sizing: border-box;
+    // font-size: 62.5%; // 10px/16px = 62.5% -> 1rem = 10px
+}
+
+body {
+    height: 100%;
+    color: #F3F3F3;
+    font-weight: 300;
+    line-height: 1.6;
+    background-position: center center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-image: url("/images/minecraft-wallpaper.jpg");
+    font-family: $font-display;
+}
+
+.bc {
+    margin-left: 5.5rem;
+    margin-bottom: 1.5rem;
+
+    &-l {
+        color: #F3F3F3;
+
+        &:hover {
+            color: #F3F3F3;
+        }
+    }
+
+    &-c {
+        color: $color-bright-red;
+    }
+
+    @media only screen and (max-width: 500px) {
+        display: none;
+    }
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 2.5rem;
+}
+
+.no-data {
+    width: 35rem;
+}
+
+.fondator {
+    color: red !important;
+}
+
+.divider {
+    width: 50%;
+    margin: 0 auto;
+}
+
+.MuiPagination-root {
+    color: pink;
+}
+
+.MuiPagination-ul > li > a {
+    color: $color-cloud;
+    background-color: $color-purple-tinged-grey;
+    text-decoration: none;
+}
+
+.Mui-selected {
+    color: $color-cloud !important;
+    background-color: $color-deep-red !important;
+}

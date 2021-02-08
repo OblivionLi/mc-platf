@@ -1,0 +1,38 @@
+.member__info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    margin-bottom: 3.5rem;
+
+    @media only screen and (max-width: 400px) {
+        margin-bottom: 0;
+    }
+}
+
+.member__header {
+    display: flex;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.member__content {
+    padding: 0 5.5rem;
+    margin: 3.5rem 0;
+
+
+    &--wrapper {
+        padding: 3rem;
+    }
+
+    &--players {
+        width: 80%;
+        margin: 1.5rem auto;
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        column-gap: 1.5rem;
+        overflow-y: auto;
+        height: 15rem;
+    }
+}
