@@ -99,7 +99,7 @@ Route::group([
         Route::post('orders', 'App\Http\Controllers\Api\OrderController@store');
         Route::get('orders/{order}', 'App\Http\Controllers\Api\OrderController@show');
         Route::get('/myorders/{order}', 'App\Http\Controllers\Api\OrderController@getUserOrders');
-        Route::patch('orders/{order}/pay', 'App\Http\Controllers\Api\OrderController@updateOrderToPaid')->middleware('isAdmin');
+        Route::patch('orders/{order}/pay', 'App\Http\Controllers\Api\OrderController@updateOrderToPaid');
         Route::patch('orders/{order}/delivered', 'App\Http\Controllers\Api\OrderController@updateOrderToDelivered')->middleware('isAdmin');
 
         // Route::apiResource('users', 'App\Http\Controllers\Api\AuthController');
