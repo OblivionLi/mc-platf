@@ -155,7 +155,6 @@ class RankController extends Controller
         $rank = Rank::find($id);
 
         if ($rank) {
-            $rank->orders()->detach();
             $rank->delete();
         }
 
