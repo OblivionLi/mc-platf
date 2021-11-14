@@ -69,10 +69,22 @@ class AuthController extends Controller
 
     public function register(RegisterRequest $request)
     {
-        $role = Role::where('name', 'User')->first();
-        $tag = Tag::where('name', 'Player')->first();
-
         $user = new User();
+
+        $role = Role::where('name', 'User')->first();
+        if (!$role) {
+            $role = Role::create([
+                'name' => 'Guest',
+                'is_admin' => false,
+            ]);
+        }
+        
+        $tag = Tag::where('name', 'Player')->first();
+        if (!$tag) {
+            $tag = Tag::create([
+                'name' => 'Player'
+            ]);
+        }
 
         $user->role_id = $role->id;
         $user->name = $request->name;
