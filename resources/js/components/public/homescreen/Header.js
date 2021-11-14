@@ -1,7 +1,11 @@
-import React from 'react'
+import React, { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { Paper, Divider, Link } from '@material-ui/core'
 import { FaDiscord, FaTwitter, FaFacebook, FaSteam, FaYoutube } from 'react-icons/fa'
 import { withStyles, makeStyles } from '@material-ui/core/styles'
+import { listMedias } from '../../../actions/mediaActions'
+import Loader from '../loader/Loader'
+import Message from '../alert/Message'
 
 const useStyles = makeStyles(theme => ({
     header: {
@@ -17,6 +21,15 @@ const useStyles = makeStyles(theme => ({
 
 const Header = () => {
     const classes = useStyles()
+    const dispatch = useDispatch()
+
+    const mediaList = useSelector(state => state.mediaList)
+    const { loading, error, medias } = mediaList
+
+    useEffect(() => {
+        dispatch(listMedias())
+    }, [dispatch])
+
     return (
         <Paper elevation={3} className={classes.header}>
             <div className='header__info'>
@@ -41,22 +54,30 @@ const Header = () => {
                 </div>
 
                 <div className='header__content--media'>
-                    <Link href='https://discord.gg/GPxBw258Dr' className='header__content--media-link'>
-                        <FaDiscord className='header__content--media-logo' />
-                    </Link>
-
-                    <Link href='https://www.youtube.com/channel/UC3Chbfd5vUDD6AfeYQSeyBw' className='header__content--media-link'>
-                        <FaYoutube className='header__content--media-logo' />
-                    </Link>
-
-                    {/*
-                    <Link href='#' className='header__content--media-link'>
-                        <FaFacebook className='header__content--media-logo' />
-                    </Link>
-
-                    <Link href='#' className='header__content--media-link'>
-                        <FaSteam className='header__content--media-logo' />
-                    </Link> */}
+                    {loading ? (
+                        <Loader />
+                    ) : error ? (
+                        <Message variant='error'>{error}</Message>
+                    ) : (
+                        medias.map(media => {
+                            switch (media.name) {
+                                case 'youtube':
+                                    return (
+                                        <Link href={media.href} className='header__content--media-link' key={media.id}>
+                                            <FaYoutube className='header__content--media-logo' />
+                                        </Link>
+                                    )
+                                case 'discord':
+                                    return (
+                                        <Link href={media.href} className='header__content--media-link' key={media.id}>
+                                            <FaDiscord className='header__content--media-logo' />
+                                        </Link>
+                                    )
+                                default:
+                                    return;
+                            }
+                        })
+                    )}
                 </div>
             </div>
         </Paper>
