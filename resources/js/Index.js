@@ -32,17 +32,17 @@ function Index() {
                 <Route path="/page" component={HomeScreen} />
 
                 <Route path="/updates" component={UpdateScreen} exact />
-                <Route path="/updates/:page" component={UpdateScreen} exact />
+                <Route path="/updates/:page" component={UpdateScreen} />
                 <Route path="/update/:id" component={ShowUpdatesScreen} />
 
-                <Route path="/members" component={MembersScreen} exact />
+                <Route path="/members" component={MembersScreen} />
 
                 <Route path="/showcases" component={ShowCasesScreen} exact />
-                <Route path="/showcases/:page" component={ShowCasesScreen} exact />
+                <Route path="/showcases/:page" component={ShowCasesScreen} />
                 <Route path="/showcases/:id" component={ShowCasesScreen} />
 
-                <Route path="/report-bug" component={AddReportBugScreen} exact />
-                <Route path="/report-player" component={AddReportPlayerScreen} exact />
+                <Route path="/report-bug" component={AddReportBugScreen} />
+                <Route path="/report-player" component={AddReportPlayerScreen} />
 
                 <Route path="/register" component={RegisterScreen} />
                 <Route path="/login" component={LoginScreen} />
@@ -51,7 +51,7 @@ function Index() {
                 <Route path="/reset-password/:id?" component={ResetPasswordScreen} />
 
                 {/* Admin View */}
-                <Route path="/admin" component={AdminScreen} exact />
+                <Route path="/admin" component={AdminScreen} />
 
                 {/* Shop View */}
                 <Route path="/shop" component={ShopScreen} exact />
