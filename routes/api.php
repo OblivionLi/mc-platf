@@ -22,6 +22,7 @@ Route::group([
     Route::get('updates', 'App\Http\Controllers\Api\UpdateController@index');
     Route::get('update/{update}', 'App\Http\Controllers\Api\UpdateController@show');
     Route::get('gamemodes', 'App\Http\Controllers\Api\GameModeController@index');
+    Route::get('media', 'App\Http\Controllers\Api\MediaController@index');
     Route::get('showcases', 'App\Http\Controllers\Api\ShowCaseController@index');
     Route::get('ranks', 'App\Http\Controllers\Api\RankController@index');
     Route::get('ranks/{rank}/details', 'App\Http\Controllers\Api\RankController@show');
@@ -51,6 +52,11 @@ Route::group([
         Route::get('gamemodes/{mode}', 'App\Http\Controllers\Api\GameModeController@show');
         Route::patch('gamemodes/{mode}', 'App\Http\Controllers\Api\GameModeController@update')->middleware('isAdmin');
         Route::delete('gamemodes/{mode}', 'App\Http\Controllers\Api\GameModeController@destroy')->middleware('isAdmin');
+
+        Route::post('media', 'App\Http\Controllers\Api\MediaController@store')->middleware('isAdmin');
+        Route::get('media/{media}', 'App\Http\Controllers\Api\MediaController@show');
+        Route::patch('media/{media}', 'App\Http\Controllers\Api\MediaController@update')->middleware('isAdmin');
+        Route::delete('media/{media}', 'App\Http\Controllers\Api\MediaController@destroy')->middleware('isAdmin');
 
         Route::get('admin/updates', 'App\Http\Controllers\Api\UpdateController@adminIndex')->middleware('isAdmin');
         Route::post('updates', 'App\Http\Controllers\Api\UpdateController@store')->middleware('isAdmin');
