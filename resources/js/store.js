@@ -99,6 +99,14 @@ import {
     orderAdminListReducer,
 } from "./reducers/orderReducers";
 
+import {
+    mediaListReducer,
+    mediaGetEditDetailsReducer,
+    mediaEditReducer,
+    mediaCreateReducer,
+    mediaDeleteReducer,
+} from "./reducers/mediaReducers";
+
 import { cartReducer } from "./reducers/cartReducers";
 
 const reducer = combineReducers({
@@ -182,6 +190,12 @@ const reducer = combineReducers({
     orderAdminList: orderAdminListReducer,
 
     cart: cartReducer,
+
+    mediaList: mediaListReducer,
+    mediaGetEditDetails: mediaGetEditDetailsReducer,
+    mediaEdit: mediaEditReducer,
+    mediaCreate: mediaCreateReducer,
+    mediaDelete: mediaDeleteReducer,
 });
 
 const cartItemsFromStorage = localStorage.getItem("cartItems")
