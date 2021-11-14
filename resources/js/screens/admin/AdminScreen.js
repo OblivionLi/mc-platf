@@ -56,7 +56,9 @@ import VideoLibraryIcon from '@material-ui/icons/VideoLibrary'
 import RanksScreen from './ranks/RanksScreen'
 import StoreIcon from '@material-ui/icons/Store'
 import ShoppingBasketIcon from '@material-ui/icons/ShoppingBasket'
+import LinkIcon from '@material-ui/icons/Link';
 import OrderScreen from './shop/OrderScreen'
+import MediaScreen from './media/MediaScreen'
 
 const drawerWidth = 240
 
@@ -468,82 +470,91 @@ const AdminScreen = ({ history }) => {
                                     </Link>
                                 </ListItem>
                             </List>
+                            <Divider />
+                            <List>
+                                <ListItem button>
+                                    <ListItemIcon>
+                                        <LinkIcon />
+                                    </ListItemIcon>
+                                    <Link
+                                        to='/admin/medias'
+                                        className='admin--links'
+                                    >
+                                        Media Links
+                                    </Link>
+                                </ListItem>
+                            </List>
                         </Drawer>
                         <main className={classes.content}>
                             <div className={classes.toolbar} />
 
                             <Switch>
-                                {/* Public View */}
+                                <Route
+                                    path='/admin'
+                                    component={DashboardScreen}
+                                    exact
+                                />
+
                                 <Route
                                     path='/admin/updates'
                                     component={UpdatesScreen}
-                                    exact
                                 />
 
                                 <Route
                                     path='/admin/report-bugs'
                                     component={ReportBugScreen}
-                                    exact
                                 />
 
                                 <Route
                                     path='/admin/report-players'
                                     component={ReportPlayerScreen}
-                                    exact
                                 />
 
                                 <Route
                                     path='/admin/gamemodes'
                                     component={GameModesScreen}
-                                    exact
                                 />
 
                                 <Route
                                     path='/admin/users'
                                     component={UsersScreen}
-                                    exact
                                 />
 
                                 <Route
                                     path='/admin/roles'
                                     component={RolesScreen}
-                                    exact
                                 />
 
                                 <Route
                                     path='/admin/permissions'
                                     component={PermissionsScreen}
-                                    exact
                                 />
 
                                 <Route
                                     path='/admin/tags'
                                     component={TagsScreen}
-                                    exact
                                 />
 
                                 <Route
                                     path='/admin/showcases'
                                     component={ShowCasesScreen}
-                                    exact
                                 />
 
                                 <Route
                                     path='/admin/ranks'
                                     component={RanksScreen}
-                                    exact
                                 />
 
                                 <Route
                                     path='/admin/orders'
                                     component={OrderScreen}
-                                    exact
                                 />
 
                                 <Route
-                                    path='/admin'
-                                    component={DashboardScreen}
+                                    path='/admin/medias'
+                                    component={MediaScreen}
                                 />
+
                             </Switch>
                         </main>
                     </Router>
