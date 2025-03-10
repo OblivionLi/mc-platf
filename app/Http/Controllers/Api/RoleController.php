@@ -4,105 +4,62 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RoleRequest;
-use App\Http\Resources\RoleResource;
-use App\Models\Role;
-use Illuminate\Http\Request;
+use App\Http\Resources\RoleShowResource;
+use App\Services\RoleService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class RoleController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+    protected RoleService $roleService;
+
+    public function __construct(RoleService $roleService)
     {
-        return RoleResource::collection(Role::all());
+        $this->roleService = $roleService;
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return AnonymousResourceCollection
      */
-    public function store(RoleRequest $request)
+    public function index(): AnonymousResourceCollection
     {
-        $role = new Role();
-
-        $role->name = $request->name;
-
-        $role->save();
-
-        $response = [
-            'message' => 'Role created successfully'
-        ];
-
-        return response()->json($response, 200);
+        return $this->roleService->getRoles();
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param RoleRequest $request
+     * @return JsonResponse
      */
-    public function show($id)
+    public function store(RoleRequest $request): JsonResponse
     {
-        $role = Role::info()->find($id);
-
-        if ($role) {
-            return response()->json($role);
-        } else {
-            return response()->json(["message" => "Role can't be found"]);
-        }
+        return $this->roleService->storeRole($request);
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param int $id
+     * @return RoleShowResource|JsonResponse
      */
-    public function update(RoleRequest $request, $id)
+    public function show(int $id): RoleShowResource|JsonResponse
     {
-        $role = Role::find($id);
-
-        if ($role) {
-            $role->name = $request->name;
-            $role->is_admin = $request->is_admin;
-
-            $role->save();
-
-            $role->permissions()->sync($request->perms);
-        } else {
-            $response = ['message' => 'Role edit failed', $role];
-            return response()->json($response, 200);
-        }
-
-        $response = ['message' => 'Role edit successfully'];
-        return response()->json($response, 200);
+        return $this->roleService->showRole($id);
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param RoleRequest $request
+     * @param int $id
+     * @return JsonResponse
      */
-    public function destroy($id)
+    public function update(RoleRequest $request, int $id): JsonResponse
     {
-        $role = Role::find($id);
+        return $this->roleService->updateRole($request, $id);
+    }
 
-        if ($role) {
-            $role->permissions()->detach();
-            $role->users()->detach();
-
-            $role->delete();
-        }
-
-        $response = ['message' => 'Role deleted successfully'];
-        return response()->json($response, 200);
+    /**
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function destroy(int $id): JsonResponse
+    {
+        return $this->roleService->destroyRole($id);
     }
 }

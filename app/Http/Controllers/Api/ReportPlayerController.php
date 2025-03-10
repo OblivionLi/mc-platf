@@ -4,122 +4,63 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ReportPlayerRequest;
+use App\Http\Requests\ReportPlayerUpdateRequest;
 use App\Http\Resources\ReportPlayerResource;
-use App\Models\ReportPlayer;
-use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
+use App\Services\ReportPlayerService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class ReportPlayerController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+    protected ReportPlayerService $reportPlayerService;
+
+    public function __construct(ReportPlayerService $reportPlayerService)
     {
-        $reportPlayers = ReportPlayer::info()->get();
-        return ReportPlayerResource::collection($reportPlayers);
+        $this->reportPlayerService = $reportPlayerService;
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return AnonymousResourceCollection
      */
-    public function store(ReportPlayerRequest $request)
+    public function index(): AnonymousResourceCollection
     {
-        $user_id = Auth::id();
-        
-        $reportPlayer = new ReportPlayer();
-        
-        $reportPlayer->user_id = $user_id;
-        $reportPlayer->user_reported = $request->user_reported;
-        $reportPlayer->title = $request->title;
-        $reportPlayer->description = $request->description;
-
-        if ($request->hasFile('image')) {
-            $reportPlayer->image = $request->file('image')->store('images/reportedPlayers', 'public');
-        } else {
-            $reportPlayer->image = "no-image";
-        }
-
-        $reportPlayer->save();
-
-        $response = [
-            'message' => 'Player reported successfully',
-            'reportPlayer' => $reportPlayer
-        ];
-
-        return response()->json($response, 200);
+        return $this->reportPlayerService->getReportPlayersWithRelations();
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param ReportPlayerRequest $request
+     * @return JsonResponse
      */
-    public function show($id)
+    public function store(ReportPlayerRequest $request): JsonResponse
     {
-        $reportPlayer = ReportPlayer::info()->find($id);
-
-        if ($reportPlayer) {
-            return response()->json($reportPlayer);
-        } else {
-            return response()->json(["message" => "Reported player can't be found"]);
-        }
+        return $this->reportPlayerService->storeReportPlayer($request);
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param int $id
+     * @return ReportPlayerResource|JsonResponse
      */
-    public function update(Request $request, $id)
+    public function show(int $id): ReportPlayerResource|JsonResponse
     {
-        $reportPlayer = ReportPlayer::find($id);
-
-        $user_id = Auth::id();
-        $user = User::find($user_id);
-
-        if ($reportPlayer) {
-            $reportPlayer->status = $request->status;
-            $reportPlayer->admin_name = $user->name;
-
-            $reportPlayer->save();
-        } else {
-            $response = ['message' => 'Reported player update failed'];
-            return response()->json($response, 200);
-        }
-
-        $response = ['message' => 'Reported player updated successfully'];
-        return response()->json($response, 200);
+        return $this->reportPlayerService->showReportPlayer($id);
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param ReportPlayerUpdateRequest $request
+     * @param int $id
+     * @return JsonResponse
      */
-    public function destroy($id)
+    public function update(ReportPlayerUpdateRequest $request, int $id): JsonResponse
     {
-        $reportPlayer = ReportPlayer::find($id);
+        return $this->reportPlayerService->updateReportPlayer($request, $id);
+    }
 
-        if ($reportPlayer) {
-            if ($reportPlayer->image != 'no-image') {
-                Storage::disk('public')->delete($reportPlayer->image);
-            }
-            $reportPlayer->delete();
-        }
-
-        $response = ['message' => 'Report player deleted successfully'];
-        return response()->json($response, 200);
+    /**
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function destroy(int $id): JsonResponse
+    {
+        return $this->reportPlayerService->destroyReportPlayer($id);
     }
 }

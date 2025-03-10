@@ -4,101 +4,61 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\MediaStoreRequest;
-use App\Models\Media;
-use Illuminate\Http\Request;
+use App\Http\Requests\MediaUpdateRequest;
+use App\Services\MediaService;
+use Illuminate\Http\JsonResponse;
 
 class MediaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+    protected MediaService $mediaService;
+
+    public function __construct(MediaService $mediaService)
     {
-        $media = Media::all();
-        return response()->json($media);
+        $this->mediaService = $mediaService;
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
      */
-    public function store(MediaStoreRequest $request)
+    public function index(): JsonResponse
     {
-        $media = new Media();
-        
-        $media->name = $request->name;
-        $media->href = $request->href;
-
-        $media->save();
-
-        $response = [
-            'message' => 'Media created successfully'
-        ];
-
-        return response()->json($response, 200);
+        return $this->mediaService->getMediaList();
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param MediaStoreRequest $request
+     * @return JsonResponse
      */
-    public function show($id)
+    public function store(MediaStoreRequest $request): JsonResponse
     {
-        $media = Media::find($id);
-
-        if ($media) {
-            return response()->json($media);
-        } else {
-            return response()->json(["message" => "Media can't be found"]);
-        }
+        return $this->mediaService->storeMedia($request);
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param int $id
+     * @return JsonResponse
      */
-    public function update(Request $request, $id)
+    public function show(int $id): JsonResponse
     {
-        $media = Media::find($id);
-
-        if ($media) {
-            $media->name = $request->name;
-            $media->href = $request->href;
-
-            $media->save();
-        } else {
-            $response = ['message' => 'Media edit failed', $media];
-            return response()->json($response, 200);
-        }
-
-        $response = ['message' => 'Media edit successfully'];
-        return response()->json($response, 200);
+        return $this->mediaService->showMedia($id);
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param MediaUpdateRequest $request
+     * @param int $id
+     * @return JsonResponse
      */
-    public function destroy($id)
+    public function update(MediaUpdateRequest $request, int $id): JsonResponse
     {
-        $media = Media::find($id);
+        return $this->mediaService->updateMedia($request, $id);
+    }
 
-        if ($media) {
-            $media->delete();
-        }
-
-        $response = ['message' => 'Media deleted successfully'];
-        return response()->json($response, 200);
+    /**
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function destroy(int $id): JsonResponse
+    {
+        return $this->mediaService->destroyMedia($id);
     }
 }

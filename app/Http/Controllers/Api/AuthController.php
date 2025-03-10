@@ -5,24 +5,33 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
+use App\Http\Resources\LoginUserResource;
 use App\Http\Resources\UserResource;
 use App\Mail\ForgotPassword;
 use App\Models\Role;
 use App\Models\Tag;
 use App\Models\User;
+use App\Services\AuthService;
 use Carbon\Carbon;
+use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail as FacadesMail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-use Mail;
 use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
+    protected AuthService $authService;
+
+    public function __construct(AuthService $authService)
+    {
+        $this->authService = $authService;
+    }
+
     public function index()
     {
         $users = User::paginate();
@@ -30,41 +39,14 @@ class AuthController extends Controller
         return UserResource::collection($users);
     }
 
-    public function login(LoginRequest $request)
+    /**
+     * @param LoginRequest $request
+     * @return LoginUserResource|JsonResponse
+     * @throws Exception
+     */
+    public function login(LoginRequest $request): LoginUserResource|JsonResponse
     {
-        $user = User::where('email', $request->email)->first();
-
-        if ($user) {
-            if (Hash::check($request->password, $user->password)) {
-                $tokenResult = $user->createToken('Personal Access Token');
-                $token = $tokenResult->token;
-
-                if ($request->remember_me) {
-                    $token->expires_at = Carbon::now()->addWeeks(1);
-                }
-
-                $token->save();
-
-                $details = User::with('roles.permissions')->where('email', $request->email)->get();
-
-                return response()->json([
-                    'message' => 'User login successfully',
-                    'access_token' => $tokenResult->accessToken,
-                    'token_type' => 'Bearer',
-                    'expires_at' => Carbon::parse(
-                        $tokenResult->token->expires_at
-                    )->toDateTimeString(),
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'role' => $user->roles,
-                    'details' => $details
-                ], 201);
-            }
-        }
-
-        $response = ['message' => 'User does not exist'];
-        return response()->json($response, 422);
+        return $this->authService->login($request);
     }
 
     public function register(RegisterRequest $request)
@@ -78,7 +60,7 @@ class AuthController extends Controller
                 'is_admin' => false,
             ]);
         }
-        
+
         $tag = Tag::where('name', 'Player')->first();
         if (!$tag) {
             $tag = Tag::create([
@@ -204,7 +186,7 @@ class AuthController extends Controller
         return response()->json($response, 200);
     }
 
-    public function resetPassword(Request $request, $email) 
+    public function resetPassword(Request $request, $email)
     {
         $validator = Validator::make($request->all(), [
             'password' => 'required|string|min:6|confirmed'

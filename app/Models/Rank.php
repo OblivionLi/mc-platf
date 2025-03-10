@@ -9,6 +9,9 @@ class Rank extends Model
 {
     use HasFactory;
 
+    /**
+     * @var string[]
+     */
     protected $fillable = [
         'type',
         'name',

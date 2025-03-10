@@ -4,115 +4,59 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ReportBugRequest;
+use App\Http\Requests\ReportBugUpdateRequest;
 use App\Http\Resources\ReportBugResource;
-use App\Models\ReportBug;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
+use App\Services\ReportBugService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class ReportBugController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+    protected ReportBugService $reportBugService;
+
+    public function __construct(ReportBugService $reportBugService)
     {
-        $reportBugs = ReportBug::info()->get();
-        return ReportBugResource::collection($reportBugs);
+        $this->reportBugService = $reportBugService;
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return AnonymousResourceCollection
      */
-    public function store(ReportBugRequest $request)
+    public function index(): AnonymousResourceCollection
     {
-        $user_id = Auth::id();
-
-        $reportBug = new ReportBug();
-        
-        $reportBug->user_id = $user_id;
-        $reportBug->title = $request->title;
-        $reportBug->description = $request->description;
-
-        if ($request->hasFile('image')) {
-            $reportBug->image = $request->file('image')->store('images/reportedBugs', 'public');
-        } else {
-            $reportBug->image = "no-image";
-        }
-
-        $reportBug->save();
-
-        $response = [
-            'message' => 'Bug reported successfully',
-            'reportBug' => $reportBug
-        ];
-
-        return response()->json($response, 200);
+        return $this->reportBugService->getReportBugsWithRelations();
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param ReportBugRequest $request
+     * @return JsonResponse
      */
-    public function show($id)
+    public function store(ReportBugRequest $request): JsonResponse
     {
-        $reportBug = ReportBug::info()->find($id);
-
-        if ($reportBug) {
-            return response()->json($reportBug);
-        } else {
-            return response()->json(["message" => "Reported bug can't be found"]);
-        }
+        return $this->reportBugService->storeReportBug($request);
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param int $id
+     * @return ReportBugResource|JsonResponse
      */
-    public function update(Request $request, $id)
+    public function show(int $id): ReportBugResource|JsonResponse
     {
-        $reportBug = ReportBug::find($id);
-
-        if ($reportBug) {
-            $reportBug->status = $request->status;
-            $reportBug->save();
-        } else {
-            $response = ['message' => 'Reported bug update failed'];
-            return response()->json($response, 200);
-        }
-
-        $response = ['message' => 'Reported bug updated successfully'];
-        return response()->json($response, 200);
+        return $this->reportBugService->showReportBug($id);
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param ReportBugUpdateRequest $request
+     * @param int $id
+     * @return JsonResponse
      */
-    public function destroy($id)
+    public function update(ReportBugUpdateRequest $request, int $id): JsonResponse
     {
-        $reportBug = ReportBug::find($id);
+        return $this->reportBugService->updateReportBug($request, $id);
+    }
 
-        if ($reportBug) {
-            if ($reportBug->image != 'no-image') {
-                Storage::disk('public')->delete($reportBug->image);
-            }
-            $reportBug->delete();
-        }
-
-        $response = ['message' => 'Report bug deleted successfully'];
-        return response()->json($response, 200);
+    public function destroy(int $id): JsonResponse
+    {
+        return $this->reportBugService->destroyReportBug($id);
     }
 }

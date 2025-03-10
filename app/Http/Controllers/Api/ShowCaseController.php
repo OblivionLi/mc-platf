@@ -4,108 +4,71 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ShowCaseRequest;
+use App\Http\Requests\ShowCaseUpdateRequest;
 use App\Http\Resources\ShowCaseResource;
-use App\Models\ShowCase;
-use Illuminate\Http\Request;
+use App\Services\ShowCaseService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class ShowCaseController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        $showCases = ShowCase::paginate(2);
-        return ShowCaseResource::collection($showCases);
-    }
+    protected ShowCaseService $showCaseService;
 
-    public function adminIndex()
+    public function __construct(ShowCaseService $showCaseService)
     {
-        $showCases = ShowCase::all();
-        return ShowCaseResource::collection($showCases);
+        $this->showCaseService = $showCaseService;
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return AnonymousResourceCollection
      */
-    public function store(ShowCaseRequest $request)
+    public function index(): AnonymousResourceCollection
     {
-        $showCase = new ShowCase();
-        
-        $showCase->name = $request->name;
-        $showCase->video_url = $request->video_url;
-
-        $showCase->save();
-
-        $response = [
-            'message' => 'Show Case created successfully'
-        ];
-
-        return response()->json($response, 200);
+        return $this->showCaseService->getShowCases();
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return AnonymousResourceCollection
      */
-    public function show($id)
+    public function adminIndex(): AnonymousResourceCollection
     {
-        $showCase = ShowCase::find($id);
-
-        if ($showCase) {
-            return response()->json($showCase);
-        } else {
-            return response()->json(["message" => "Show Case can't be found"]);
-        }
+        return $this->showCaseService->getShowCasesList();
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param ShowCaseRequest $request
+     * @return JsonResponse
      */
-    public function update(Request $request, $id)
+    public function store(ShowCaseRequest $request): JsonResponse
     {
-        $showCase = ShowCase::find($id);
-
-        if ($showCase) {
-            $showCase->name = $request->name;
-            $showCase->video_url = $request->video_url;
-
-            $showCase->save();
-        } else {
-            $response = ['message' => 'Show Case edit failed', $showCase];
-            return response()->json($response, 200);
-        }
-
-        $response = ['message' => 'Show Case edit successfully'];
-        return response()->json($response, 200);
+        return $this->showCaseService->storeShowCase($request);
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param int $id
+     * @return ShowCaseResource|JsonResponse
      */
-    public function destroy($id)
+    public function show(int $id): ShowCaseResource|JsonResponse
     {
-        $showCase = ShowCase::find($id);
+        return $this->showCaseService->showShowCase($id);
+    }
 
-        if ($showCase) {
-            $showCase->delete();
-        }
+    /**
+     * @param ShowCaseUpdateRequest $request
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function update(ShowCaseUpdateRequest $request, int $id): JsonResponse
+    {
+        return $this->showCaseService->updateShowCase($request, $id);
+    }
 
-        $response = ['message' => 'Show Case deleted successfully'];
-        return response()->json($response, 200);
+    /**
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function destroy(int $id): JsonResponse
+    {
+        return $this->showCaseService->destroyShowCase($id);
     }
 }

@@ -4,101 +4,61 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PermissionRequest;
-use App\Http\Resources\PermissionResource;
-use App\Models\Permission;
-use Illuminate\Http\Request;
+use App\Http\Resources\PermissionShowResource;
+use App\Services\PermissionService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class PermissionController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        return PermissionResource::collection(Permission::all());
+    protected PermissionService $permissionService;
+
+    public function __construct(PermissionService $permissionService) {
+        $this->permissionService = $permissionService;
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return AnonymousResourceCollection
      */
-    public function store(PermissionRequest $request)
+    public function index(): AnonymousResourceCollection
     {
-        $permission = new Permission();
-
-        $permission->name = $request->name;
-
-        $permission->save();
-
-        $response = [
-            'message' => 'Permission created successfully'
-        ];
-
-        return response()->json($response, 200);
+        return $this->permissionService->getPermissions();
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param PermissionRequest $request
+     * @return JsonResponse
      */
-    public function show($id)
+    public function store(PermissionRequest $request): JsonResponse
     {
-        $permission = Permission::info()->find($id);
-
-        if ($permission) {
-            return response()->json($permission);
-        } else {
-            return response()->json(["message" => "Permission can't be found"]);
-        }
+        return $this->permissionService->storePermission($request);
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param int $id
+     * @return PermissionShowResource|JsonResponse
      */
-    public function update(PermissionRequest $request, $id)
+    public function show(int $id): PermissionShowResource|JsonResponse
     {
-        $permission = Permission::find($id);
-
-        if ($permission) {
-            $permission->name = $request->name;
-
-            $permission->save();
-        } else {
-            $response = ['message' => 'Permission edit failed', $permission];
-            return response()->json($response, 200);
-        }
-
-        $response = ['message' => 'Permission edit successfully'];
-        return response()->json($response, 200);
+        return $this->permissionService->showPermission($id);
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param PermissionRequest $request
+     * @param int $id
+     * @return JsonResponse
      */
-    public function destroy($id)
+    public function update(PermissionRequest $request, int $id): JsonResponse
     {
-        $permission = Permission::find($id);
+        return $this->permissionService->updatePermission($request, $id);
+    }
 
-        if ($permission) {
-            $permission->roles()->detach();
-
-            $permission->delete();
-        }
-
-        $response = ['message' => 'Permission deleted successfully'];
-        return response()->json($response, 200);
+    /**
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function destroy(int $id): JsonResponse
+    {
+        return $this->permissionService->destroyPermission($id);
     }
 }
