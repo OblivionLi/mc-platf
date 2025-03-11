@@ -4,125 +4,71 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\GameModeRequest;
+use App\Http\Requests\GameModeUpdateRequest;
 use App\Http\Resources\GameModeResource;
-use App\Models\GameMode;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
+use App\Services\GameModeService;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class GameModeController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        $gameModes = GameMode::info()->paginate(6);
-        return GameModeResource::collection($gameModes);
-    }
+    protected GameModeService $gameModeService;
 
-    public function adminIndex()
+    public function __construct(GameModeService $gameModeService)
     {
-        $gameModes = GameMode::info()->get();
-        return GameModeResource::collection($gameModes);
+        $this->gameModeService = $gameModeService;
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return AnonymousResourceCollection
      */
-    public function store(GameModeRequest $request)
+    public function index(): AnonymousResourceCollection
     {
-        $user_id = Auth::id();
-
-        $gameMode = new GameMode();
-        
-        $gameMode->user_id = $user_id;
-        $gameMode->title = $request->title;
-        $gameMode->description = $request->description;
-
-        if ($request->hasFile('image')) {
-            $gameMode->image = $request->file('image')->store('images/gameModes', 'public');
-        } else {
-            $gameMode->image = "no-image";
-        }
-
-        $gameMode->save();
-
-        $response = [
-            'message' => 'Game Mode created successfully'
-        ];
-
-        return response()->json($response, 200);
+        return $this->gameModeService->getGameModes();
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return AnonymousResourceCollection
      */
-    public function show($id)
+    public function adminIndex(): AnonymousResourceCollection
     {
-        $gameMode = GameMode::info()->find($id);
-
-        if ($gameMode) {
-            return response()->json($gameMode);
-        } else {
-            return response()->json(["message" => "Game Mode can't be found"]);
-        }
+        return $this->gameModeService->getAdminGameModesList();
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param GameModeRequest $request
+     * @return JsonResponse
      */
-    public function update(Request $request, $id)
+    public function store(GameModeRequest $request): JsonResponse
     {
-        $gameMode = GameMode::find($id);
-
-        if ($gameMode) {
-            $user_id = Auth::id();
-
-            $gameMode->user_id = $user_id;
-            $gameMode->title = $request->title;
-            $gameMode->description = $request->description;
-
-            $gameMode->save();
-        } else {
-            $response = ['message' => 'Game Mode edit failed', $gameMode];
-            return response()->json($response, 200);
-        }
-
-        $response = ['message' => 'Game Mode edit successfully'];
-        return response()->json($response, 200);
+        return $this->gameModeService->storeGameMode($request);
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param int $id
+     * @return GameModeResource|JsonResponse
      */
-    public function destroy($id)
+    public function show(int $id): GameModeResource|JsonResponse
     {
-        $gameMode = GameMode::find($id);
+        return $this->gameModeService->showGameMode($id);
+    }
 
-        if ($gameMode) {
-            if ($gameMode->image != 'no-image') {
-                Storage::disk('public')->delete($gameMode->image);
-            }
-            $gameMode->delete();
-        }
+    /**
+     * @param GameModeUpdateRequest $request
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function update(GameModeUpdateRequest $request, int $id): JsonResponse
+    {
+        return $this->gameModeService->updateGameMode($request, $id);
+    }
 
-        $response = ['message' => 'Game Mode deleted successfully'];
-        return response()->json($response, 200);
+    /**
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function destroy(int $id): JsonResponse
+    {
+        return $this->gameModeService->deleteGameMode($id);
     }
 }

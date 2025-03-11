@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
@@ -42,23 +44,18 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function roles() 
+    public function roles(): BelongsToMany
     {
         return $this->belongsToMany(Role::class, 'user_role');
     }
 
-    public function tags()
+    public function tags(): BelongsToMany
     {
         return $this->belongsToMany(Tag::class, 'user_tag');
     }
 
-    public function orders()
+    public function orders(): HasMany
     {
         return $this->hasMany(Order::class);
-    }
-
-    public function scopeInfo($query)
-    {
-        return $query->with('roles.permissions', 'tags', 'orders');
     }
 }

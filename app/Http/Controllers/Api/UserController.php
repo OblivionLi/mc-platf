@@ -3,99 +3,52 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\UserResource;
-use App\Models\Role;
-use App\Models\User;
-use Illuminate\Http\Request;
+use App\Http\Requests\UserUpdateRequest;
+use App\Services\UserService;
+use Illuminate\Http\JsonResponse;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        $users = User::with('roles.permissions', 'tags')->get();
+    protected UserService $userService;
 
-        return response()->json($users);
+    public function __construct(UserService $userService)
+    {
+        $this->userService = $userService;
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
      */
-    public function store(Request $request)
+    public function index(): JsonResponse
     {
-        //
+        return $this->userService->getUsersWithRelations();
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param int $id
+     * @return JsonResponse
      */
-    public function show($id)
+    public function show(int $id): JsonResponse
     {
-        $user = User::info()->find($id);
-
-        if ($user) {
-            return response()->json($user);
-        } else {
-            return response()->json(['message' => "User can't be found"]);
-        }
+        return $this->userService->showUser($id);
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param UserUpdateRequest $request
+     * @param int $id
+     * @return JsonResponse
      */
-    public function update(Request $request, $id)
+    public function update(UserUpdateRequest $request, int $id): JsonResponse
     {
-        $user = User::find($id);
-        if ($user) {
-            $user->name = $request->name;
-            $user->email = $request->email;
-
-            $user->save();
-
-            $user->roles()->sync($request->role);
-            $user->tags()->sync($request->tag);
-        } else {
-            $response = ['message' => 'User edit failed', $user];
-            return response()->json($response, 200);
-        }
-
-        $response = ['message' => 'User edit successfully'];
-        return response()->json($response, 200);
+        return $this->userService->updateUser($id, $request);
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param int $id
+     * @return JsonResponse
      */
-    public function destroy($id)
+    public function destroy(int $id): JsonResponse
     {
-        $user = User::find($id);
-
-        if ($user) {
-            $user->roles()->detach();
-            $user->tags()->detach();
-            $user->orders()->delete();
-
-            $user->delete();
-        }
-
-        $response = ['message' => 'User deleted successfully'];
-        return response()->json($response, 200);
+        return $this->userService->destroyUser($id);
     }
 }

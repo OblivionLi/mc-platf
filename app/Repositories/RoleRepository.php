@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Models\Role;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -103,6 +104,32 @@ class RoleRepository
         } catch (Exception $e) {
             Log::error("Database error deleting role: " . $e->getMessage());
             return false;
+        }
+    }
+
+    /**
+     * @param string $name
+     * @return Role|null
+     * @throws Exception
+     */
+    public function getOrCreateRole(string $name): ?Role
+    {
+        try {
+            return Role::firstOrCreate(
+                ['name' => $name],
+                [
+                    'name' => $name,
+                    'is_admin' => false
+                ]
+            );
+        } catch (QueryException $e) {
+            DB::rollBack();
+            Log::error("Database error creating role: " . $e->getMessage());
+            return null;
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error("Error creating role: " . $e->getMessage());
+            throw $e;
         }
     }
 }

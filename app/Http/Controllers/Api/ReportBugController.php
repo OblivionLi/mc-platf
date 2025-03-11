@@ -55,6 +55,10 @@ class ReportBugController extends Controller
         return $this->reportBugService->updateReportBug($request, $id);
     }
 
+    /**
+     * @param int $id
+     * @return JsonResponse
+     */
     public function destroy(int $id): JsonResponse
     {
         return $this->reportBugService->destroyReportBug($id);

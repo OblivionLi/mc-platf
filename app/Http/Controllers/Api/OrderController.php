@@ -3,142 +3,80 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\OrderStoreRequest;
 use App\Http\Resources\OrderResource;
-use App\Models\Order;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Services\OrderService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class OrderController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        $orders = Order::all();
+    protected OrderService $orderService;
 
-        return OrderResource::collection($orders);
-    }
-
-    public function adminIndex()
+    public function __construct(OrderService $orderService)
     {
-        $orders = Order::info()->get();
-        return OrderResource::collection($orders);
+        $this->orderService = $orderService;
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return AnonymousResourceCollection
      */
-    public function store(Request $request)
+    public function index(): AnonymousResourceCollection
     {
-        $order = new Order();
+        return $this->orderService->getOrders();
 
-        $user_id = Auth::id();
-
-        $order->user_id = $user_id;
-        $order->payment_method = $request->paymentMethod;
-        $order->status = "PENDING";
-        $order->total_price = $request->discountPrice;
-
-        $order->save();
-
-        foreach($request->cartItems as $items) {
-            $order->ranks()->attach(
-                $items['rank'],
-                [
-                    'order_id' => $order->id,
-                    'rank_id' => $items['rank']
-                ]
-            );
-        }
-
-        $response = [
-            'message' => 'Order placed successfully',
-            'id' => $order->id
-        ];
-
-        return response()->json($response, 200);
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return AnonymousResourceCollection
      */
-    public function show($id)
+    public function adminIndex(): AnonymousResourceCollection
     {
-        $order = Order::info()->find($id);
-
-        return response()->json($order);
+        return $this->orderService->getOrders();
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param OrderStoreRequest $request
+     * @return JsonResponse
      */
-    public function update(Request $request, $id)
+    public function store(OrderStoreRequest $request): JsonResponse
     {
-        //
+        return $this->orderService->storeOrder($request);
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param int $id
+     * @return JsonResponse|OrderResource
      */
-    public function destroy($id)
+    public function show(int $id): JsonResponse|OrderResource
     {
-        //
-    }
-
-    public function updateOrderToPaid($id) 
-    {
-        $order = Order::find($id);
-
-        if($order) {
-            $order->is_paid = 1;
-            $order->paid_at = Carbon::now();
-            $order->status = "PAID";
-
-            $order->save();
-        }
-
-        return response()->json($order);
-    }
-
-    public function updateOrderToDelivered($id) 
-    {
-        $order = Order::find($id);
-
-        if($order) {
-            $order->is_delivered = 1;
-            $order->delivered_at = Carbon::now();
-            $order->status = "DELIVERED";
-
-            $order->save();
-        }
-
-        return response()->json($order);
+        return $this->orderService->getOrder($id);
     }
 
     /**
-     * Get all orders related to user
+     * @param int $id
+     * @return JsonResponse
      */
-    public function getUserOrders($id) 
+    public function updateOrderToPaid(int $id): JsonResponse
     {
-        $orders = Order::info()->where('user_id', $id)->get();
+        return $this->orderService->updateOrderStatus('PAID', $id);
+    }
 
-        return response()->json($orders);
+    /**
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function updateOrderToDelivered(int $id): JsonResponse
+    {
+        return $this->orderService->updateOrderStatus('DELIVERED', $id);
+    }
+
+    /**
+     * @param int $userId
+     * @return JsonResponse|AnonymousResourceCollection
+     */
+    public function getUserOrders(int $userId): JsonResponse|AnonymousResourceCollection
+    {
+        return $this->orderService->getUserOrdersList($userId);
     }
 }

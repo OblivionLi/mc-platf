@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Models\Tag;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -90,6 +91,28 @@ class TagRepository
         } catch (Exception $e) {
             Log::error("Database error deleting role: " . $e->getMessage());
             return false;
+        }
+    }
+
+    /**
+     * @param string $name
+     * @return Tag|null
+     * @throws Exception
+     */
+    public function getOrCreateTag(string $name): ?Tag
+    {
+        try {
+            return Tag::firstOrCreate(
+                ['name' => $name],
+            );
+        } catch (QueryException $e) {
+            DB::rollBack();
+            Log::error("Database error creating tag: " . $e->getMessage());
+            return null;
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error("Error creating tag: " . $e->getMessage());
+            throw $e;
         }
     }
 }
